@@ -19,10 +19,12 @@ import click
 import logging
 import traceback
 import coloredlogs
+import os
 
 from . import exception
 from .meta import __version__
 from .reckoner import Reckoner
+from .reckoner_export import ReckonerExport
 
 from reckoner.schema_validator.course import validate_course_file
 
@@ -89,3 +91,17 @@ def plot(ctx, course_file=None, dry_run=False, debug=False, only=None, helm_args
 def version():
     """ Takes no arguments, outputs version info"""
     print(__version__)
+
+@cli.command()
+@click.option("--namespace" , required=True, metavar="<namespace>", help='The namespace to export', multiple=True)
+@click.option("--dest" , required=False, default=os.getcwd(), metavar="<dest>", help='The destination path', multiple=False, type=click.Path(exists=True))
+@click.option("--ignore-repo" , required=False, metavar="<ignore_repo>", help='Ignore this helm repo', multiple=True)
+def export(namespace, dest, ignore_repo):
+  """ Export specified namespaces into reckoner files"""
+  for ns in namespace:
+    reckoner_export = ReckonerExport(ns, dest, ignore_repo, version = __version__)
+    reckoner_file = reckoner_export.export()
+    click.echo("Exported %s to %s" % (ns, reckoner_file))
+
+if __name__ == "__main__":
+    cli()

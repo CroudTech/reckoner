@@ -83,7 +83,7 @@ class Release(object):
 
     """
 
-    def __init__(self, name, revision, updated, status, chart, app_version, namespace):
+    def __init__(self, name, revision, updated, status, chart, app_version, namespace, helm_client = None):
         self._dict = {
             'name': name,
             'revision': revision,
@@ -92,9 +92,12 @@ class Release(object):
             'chart': chart,
             'app_version': app_version,
             'namespace': namespace,
+            'values_files': []
         }
-
-        self.helm = HelmClient()
+        if helm_client == None:
+            self.helm = HelmClient()
+        else:
+            self.helm = helm_client
 
     def __getattr__(self, key):
         return self._dict.get(key)
@@ -119,3 +122,6 @@ class Release(object):
     def rollback(self):
         """ Roll back current release """
         return self.helm.rollback(self.name, self.revision)
+    
+    def set_values_file(self, values_file):
+        self._dict['values_files'].append(values_file)
