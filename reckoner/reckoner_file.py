@@ -33,4 +33,5 @@ class ReckonerFile(object):
       'version': chart_version,
       'files': release.values_files
     }
-    self._dict['repositories'][repo] = self.repositories[repo]
+    if self.repositories[repo]:
+      self._dict['repositories'][repo] = self.repositories[repo]
